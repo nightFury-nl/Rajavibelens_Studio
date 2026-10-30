@@ -1,1174 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Mobile Standalone App Meta Tags -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Aperture Vault">
-    <meta name="theme-color" content="#090d16">
-    
-    <!-- Dynamic Web App Manifest Data URI -->
-    <link rel="manifest" id="manifest-placeholder">
-
-    <title>Aperture Vault | Pro Photography Gear Studio</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        darkBg: '#090d16',
-                        cardBg: '#121826',
-                        cardHover: '#182033',
-                        borderSubtle: '#212d45',
-                        cyanAccent: '#06b6d4',
-                        cyanHover: '#0891b2',
-                        skyAccent: '#38bdf8',
-                        indigoAccent: '#6366f1'
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif']
-                    }
-                }
-            }
-        }
-    </script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        ::-webkit-scrollbar {
-            width: 4px;
-            height: 4px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #090d16;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #212d45;
-            border-radius: 4px;
-        }
-        .pb-safe {
-            padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 5.5rem);
-        }
-        .glow-cyan {
-            box-shadow: 0 0 20px -5px rgba(6, 182, 212, 0.35);
-        }
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
-        }
-    </style>
-</head>
-<body class="bg-darkBg text-slate-100 font-sans min-h-screen antialiased selection:bg-cyanAccent selection:text-black">
-
-    <div id="app" class="max-w-2xl mx-auto flex flex-col min-h-screen relative pb-safe">
-        
-        <!-- HEADER -->
-        <header class="sticky top-0 z-30 bg-darkBg/95 backdrop-blur-xl border-b border-borderSubtle/80 px-4 py-3.5 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 via-teal-500 to-sky-400 flex items-center justify-center text-slate-950 font-bold shadow-lg shadow-cyan-500/20">
-                    <i class="fa-solid fa-camera-retro text-lg"></i>
-                </div>
-                <div>
-                    <h1 class="text-base font-extrabold tracking-tight text-white leading-tight flex items-center gap-1.5">
-                        Aperture Vault
-                        <span class="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.2 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">Pro</span>
-                    </h1>
-                    <p class="text-[11px] text-slate-400">Photography Equipment Manifest</p>
-                </div>
-            </div>
-            <div class="flex items-center space-x-2">
-                <!-- Gemini Assistant Trigger Button -->
-                <button onclick="openGeminiModal()" title="Gemini AI Gear Assistant" class="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-white font-bold text-xs p-2.5 rounded-xl transition flex items-center space-x-1.5 shadow-lg shadow-purple-500/25 active:scale-95">
-                    <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
-                    <span class="hidden sm:inline">Gemini AI</span>
-                </button>
-                <button onclick="openModal()" class="bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 font-bold text-xs px-3.5 py-2.5 rounded-xl transition flex items-center space-x-1.5 shadow-lg shadow-cyan-500/25 active:scale-95">
-                    <i class="fa-solid fa-plus text-xs"></i>
-                    <span class="hidden sm:inline">Add Gear</span>
-                    <span class="sm:hidden">Add</span>
-                </button>
-            </div>
-        </header>
-
-        <!-- DASHBOARD STATS SUMMARY -->
-        <section class="p-4 grid grid-cols-3 gap-3">
-            <div class="bg-cardBg border border-borderSubtle/90 rounded-2xl p-3.5 flex flex-col justify-between relative overflow-hidden group">
-                <div class="absolute -right-2 -bottom-2 text-cyan-500/5 text-5xl group-hover:text-cyan-500/10 transition">
-                    <i class="fa-solid fa-boxes-packing"></i>
-                </div>
-                <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Owned Gear</div>
-                <div class="mt-2 flex items-baseline justify-between relative z-10">
-                    <span id="stat-owned-count" class="text-2xl font-black text-white">0</span>
-                    <span class="text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded-md font-medium">In Studio</span>
-                </div>
-            </div>
-
-            <div class="bg-cardBg border border-borderSubtle/90 rounded-2xl p-3.5 flex flex-col justify-between relative overflow-hidden group">
-                <div class="absolute -right-2 -bottom-2 text-indigo-500/5 text-5xl group-hover:text-indigo-500/10 transition">
-                    <i class="fa-solid fa-heart"></i>
-                </div>
-                <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Wishlist</div>
-                <div class="mt-2 flex items-baseline justify-between relative z-10">
-                    <span id="stat-wishlist-count" class="text-2xl font-black text-cyanAccent">0</span>
-                    <span class="text-[10px] text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-1.5 py-0.5 rounded-md font-medium">Future</span>
-                </div>
-            </div>
-
-            <div class="bg-cardBg border border-borderSubtle/90 rounded-2xl p-3.5 flex flex-col justify-between relative overflow-hidden group">
-                <div class="absolute -right-2 -bottom-2 text-sky-500/5 text-5xl group-hover:text-sky-500/10 transition">
-                    <i class="fa-solid fa-sack-dollar"></i>
-                </div>
-                <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Wish Target</div>
-                <div class="mt-2 flex items-baseline justify-between relative z-10">
-                    <span id="stat-wishlist-val" class="text-base sm:text-lg font-extrabold text-sky-400 truncate">$0</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- SEARCH & FILTER BAR -->
-        <section class="px-4 mb-3 space-y-2.5">
-            <div class="relative">
-                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-                <input type="text" id="search-input" oninput="handleSearch()" placeholder="Search gear title, specs, or serial..." 
-                    class="w-full bg-cardBg/90 border border-borderSubtle text-xs sm:text-sm text-slate-200 placeholder-slate-500 rounded-xl pl-9 pr-9 py-2.5 focus:outline-none focus:border-cyanAccent transition shadow-inner">
-                <button id="clear-search-btn" onclick="clearSearch()" class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
-                    <i class="fa-solid fa-xmark text-xs"></i>
-                </button>
-            </div>
-
-            <!-- CATEGORY SCROLLABLE PILLS -->
-            <div class="flex items-center space-x-2 overflow-x-auto no-scrollbar pb-1 text-xs">
-                <button onclick="setCategoryFilter('ALL')" id="cat-btn-ALL" class="cat-pill bg-gradient-to-r from-cyan-500 to-teal-500 text-slate-950 font-bold px-3 py-1.5 rounded-xl whitespace-nowrap transition shadow-sm">
-                    All Gear
-                </button>
-                <button onclick="setCategoryFilter('Cameras')" id="cat-btn-Cameras" class="cat-pill bg-cardBg border border-borderSubtle text-slate-400 hover:text-white px-3 py-1.5 rounded-xl whitespace-nowrap transition">
-                    📷 Cameras
-                </button>
-                <button onclick="setCategoryFilter('Lenses')" id="cat-btn-Lenses" class="cat-pill bg-cardBg border border-borderSubtle text-slate-400 hover:text-white px-3 py-1.5 rounded-xl whitespace-nowrap transition">
-                    🔍 Lenses
-                </button>
-                <button onclick="setCategoryFilter('Drone & Aerial')" id="cat-btn-Drone & Aerial" class="cat-pill bg-cardBg border border-borderSubtle text-slate-400 hover:text-white px-3 py-1.5 rounded-xl whitespace-nowrap transition">
-                    🚁 Drones
-                </button>
-                <button onclick="setCategoryFilter('Field Gear & Support')" id="cat-btn-Field Gear & Support" class="cat-pill bg-cardBg border border-borderSubtle text-slate-400 hover:text-white px-3 py-1.5 rounded-xl whitespace-nowrap transition">
-                    📐 Tripods & Rig
-                </button>
-                <button onclick="setCategoryFilter('Lighting & Filters')" id="cat-btn-Lighting & Filters" class="cat-pill bg-cardBg border border-borderSubtle text-slate-400 hover:text-white px-3 py-1.5 rounded-xl whitespace-nowrap transition">
-                    💡 Lighting
-                </button>
-                <button onclick="setCategoryFilter('Storage & Accessories')" id="cat-btn-Storage & Accessories" class="cat-pill bg-cardBg border border-borderSubtle text-slate-400 hover:text-white px-3 py-1.5 rounded-xl whitespace-nowrap transition">
-                    💾 Accessories
-                </button>
-                <button onclick="setCategoryFilter('Astro & Specialty')" id="cat-btn-Astro & Specialty" class="cat-pill bg-cardBg border border-borderSubtle text-slate-400 hover:text-white px-3 py-1.5 rounded-xl whitespace-nowrap transition">
-                    🌌 Astro & Specialty
-                </button>
-            </div>
-        </section>
-
-        <!-- MAIN TABS SECTION -->
-        <main class="flex-1 px-4">
-            
-            <!-- LIST CONTAINER -->
-            <div id="items-list" class="space-y-3">
-                <!-- Items populated by JavaScript -->
-            </div>
-
-            <!-- EMPTY STATE -->
-            <div id="empty-state" class="hidden py-16 text-center px-4">
-                <div class="w-16 h-16 mx-auto mb-4 rounded-2xl bg-cardBg border border-borderSubtle flex items-center justify-center text-slate-600">
-                    <i class="fa-solid fa-camera text-2xl"></i>
-                </div>
-                <h3 class="text-slate-300 font-bold text-base mb-1">No items found</h3>
-                <p id="empty-state-msg" class="text-xs text-slate-500 max-w-xs mx-auto mb-5">There are no items matching your selection or filter query.</p>
-                <button onclick="openModal()" class="bg-cardBg hover:bg-borderSubtle border border-cyan-500/30 text-cyanAccent text-xs px-4 py-2.5 rounded-xl transition inline-flex items-center space-x-2 font-medium">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>Add New Gear</span>
-                </button>
-            </div>
-        </main>
-
-        <!-- FOOTER & SETTINGS BANNER -->
-        <footer class="p-4 mt-8 border-t border-borderSubtle/50 text-center text-xs text-slate-500 space-y-3">
-            <div class="flex items-center justify-center space-x-4">
-                <button onclick="exportData()" class="hover:text-slate-300 flex items-center space-x-1.5 transition">
-                    <i class="fa-solid fa-download text-slate-400"></i>
-                    <span>Export Data</span>
-                </button>
-                <span class="text-slate-700">•</span>
-                <label class="hover:text-slate-300 flex items-center space-x-1.5 cursor-pointer transition">
-                    <i class="fa-solid fa-upload text-slate-400"></i>
-                    <span>Import Data</span>
-                    <input type="file" id="import-file" accept=".json" onchange="importData(event)" class="hidden">
-                </label>
-                <span class="text-slate-700">•</span>
-                <button onclick="resetDataPrompt()" class="hover:text-rose-400 flex items-center space-x-1.5 transition">
-                    <i class="fa-solid fa-rotate-left text-slate-400"></i>
-                    <span>Reset</span>
-                </button>
-            </div>
-            <p class="text-[10px] text-slate-600">Aperture Vault Pro • Mobile Field Studio</p>
-        </footer>
-
-        <!-- BOTTOM NAVIGATION TABS -->
-        <nav class="fixed bottom-0 left-0 right-0 z-40 bg-cardBg/95 backdrop-blur-xl border-t border-borderSubtle max-w-2xl mx-auto flex items-center justify-around py-2.5 px-6 shadow-2xl">
-            <button onclick="switchTab('owned')" id="nav-btn-owned" class="flex-1 flex flex-col items-center py-1 text-cyanAccent transition">
-                <i class="fa-solid fa-suitcase font-bold text-lg mb-0.5"></i>
-                <span class="text-[11px] font-bold">My Owned Gear</span>
-            </button>
-            <button onclick="switchTab('wishlist')" id="nav-btn-wishlist" class="flex-1 flex flex-col items-center py-1 text-slate-500 hover:text-slate-300 transition">
-                <i class="fa-solid fa-wand-magic-sparkles text-lg mb-0.5"></i>
-                <span class="text-[11px] font-bold">Wishlist</span>
-            </button>
-        </nav>
-
-        <!-- ADD / EDIT MODAL -->
-        <div id="item-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
-            <div class="bg-cardBg border-t sm:border border-borderSubtle rounded-t-3xl sm:rounded-2xl w-full max-w-lg p-5 max-h-[90vh] overflow-y-auto shadow-2xl space-y-4">
-                
-                <div class="flex items-center justify-between border-b border-borderSubtle/80 pb-3">
-                    <h2 id="modal-title" class="text-base font-bold text-white flex items-center gap-2">
-                        <i class="fa-solid fa-sliders text-cyanAccent"></i>
-                        <span>Add Gear Entry</span>
-                    </h2>
-                    <button onclick="closeModal()" class="text-slate-400 hover:text-white p-1">
-                        <i class="fa-solid fa-xmark text-lg"></i>
-                    </button>
-                </div>
-
-                <form id="item-form" onsubmit="saveItem(event)" class="space-y-3.5">
-                    <input type="hidden" id="form-item-id">
-
-                    <!-- Tab Type Selector -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Target Manifest</label>
-                        <div class="grid grid-cols-2 gap-2 bg-darkBg p-1 rounded-xl border border-borderSubtle">
-                            <button type="button" id="form-type-owned" onclick="setFormType('owned')" class="py-2 text-xs font-bold rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 text-slate-950 transition">
-                                My Gear (Owned)
-                            </button>
-                            <button type="button" id="form-type-wishlist" onclick="setFormType('wishlist')" class="py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition">
-                                Wishlist
-                            </button>
-                        </div>
-                        <input type="hidden" id="form-type" value="owned">
-                    </div>
-
-                    <!-- Name -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Gear Model & Name *</label>
-                        <input type="text" id="form-title" required placeholder="e.g., Canon EOS R5 Mark II or RF 70-200mm f/2.8" 
-                            class="w-full bg-darkBg border border-borderSubtle rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyanAccent">
-                    </div>
-
-                    <!-- Category & Photo URL -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Category *</label>
-                            <select id="form-category" required class="w-full bg-darkBg border border-borderSubtle rounded-xl px-3 py-2.5 text-xs text-white focus:outline-none focus:border-cyanAccent">
-                                <option value="Cameras">📷 Cameras</option>
-                                <option value="Lenses">🔍 Lenses</option>
-                                <option value="Drone & Aerial">🚁 Drone & Aerial</option>
-                                <option value="Field Gear & Support">📐 Field Gear & Support</option>
-                                <option value="Lighting & Filters">💡 Lighting & Filters</option>
-                                <option value="Storage & Accessories">💾 Storage & Accessories</option>
-                                <option value="Astro & Specialty">🌌 Astro & Specialty</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Photo Image URL (Optional)</label>
-                            <input type="url" id="form-image" placeholder="https://images.unsplash.com/..." 
-                                class="w-full bg-darkBg border border-borderSubtle rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyanAccent">
-                        </div>
-                    </div>
-
-                    <!-- OWNED SPECIFIC FIELDS -->
-                    <div id="owned-fields" class="space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">Role / Condition</label>
-                                <select id="form-condition" class="w-full bg-darkBg border border-borderSubtle rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyanAccent">
-                                    <option value="Primary Body">Primary Body</option>
-                                    <option value="Active Field">Active Field</option>
-                                    <option value="Secondary / Backup">Secondary / Backup</option>
-                                    <option value="Studio Only">Studio Only</option>
-                                    <option value="Mint Condition">Mint Condition</option>
-                                    <option value="Good Condition">Good Condition</option>
-                                    <option value="Well Worn">Well Worn</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">Purchase Year/Date</label>
-                                <input type="text" id="form-purchase-date" placeholder="e.g. 2024 or May 2023" 
-                                    class="w-full bg-darkBg border border-borderSubtle rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyanAccent">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Serial Number (Optional)</label>
-                            <input type="text" id="form-serial" placeholder="e.g. SN-9812401923" 
-                                class="w-full bg-darkBg border border-borderSubtle rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyanAccent font-mono">
-                        </div>
-                    </div>
-
-                    <!-- WISHLIST SPECIFIC FIELDS -->
-                    <div id="wishlist-fields" class="hidden space-y-3">
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">Priority Level</label>
-                                <select id="form-priority" class="w-full bg-darkBg border border-borderSubtle rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-cyanAccent">
-                                    <option value="High">🔥 High Priority</option>
-                                    <option value="Medium">⚡ Medium Priority</option>
-                                    <option value="Low">🌱 Low Priority</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-slate-400 mb-1">Est. Price ($)</label>
-                                <input type="number" id="form-price" min="0" step="1" placeholder="e.g. 2499" 
-                                    class="w-full bg-darkBg border border-borderSubtle rounded-xl px-3 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyanAccent">
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1">Target Goal / Purpose</label>
-                            <input type="text" id="form-purpose" placeholder="e.g., Milky Way panorama shoot in Alps" 
-                                class="w-full bg-darkBg border border-borderSubtle rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyanAccent">
-                        </div>
-                    </div>
-
-                    <!-- Notes Field -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Technical Specs & Notes (Optional)</label>
-                        <textarea id="form-notes" rows="2" placeholder="e.g., Filter thread size 82mm, includes Peak Design plate" 
-                            class="w-full bg-darkBg border border-borderSubtle rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-600 focus:outline-none focus:border-cyanAccent"></textarea>
-                    </div>
-
-                    <div class="pt-2 flex items-center space-x-3">
-                        <button type="button" onclick="closeModal()" class="flex-1 bg-darkBg hover:bg-borderSubtle text-slate-300 py-2.5 rounded-xl text-xs font-medium border border-borderSubtle transition">
-                            Cancel
-                        </button>
-                        <button type="submit" class="flex-1 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-slate-950 py-2.5 rounded-xl text-xs font-bold transition shadow-lg shadow-cyan-500/20">
-                            Save Gear Item
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- PURCHASE PROMPT MODAL -->
-        <div id="purchase-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-            <div class="bg-cardBg border border-borderSubtle rounded-2xl w-full max-w-sm p-5 shadow-2xl space-y-4">
-                <div class="text-center space-y-1">
-                    <div class="w-12 h-12 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-cyanAccent flex items-center justify-center mx-auto text-xl mb-2">
-                        <i class="fa-solid fa-circle-check"></i>
-                    </div>
-                    <h3 class="text-base font-bold text-white">Acquired Gear!</h3>
-                    <p id="purchase-item-name" class="text-xs text-cyan-400 font-semibold">Camera Name Here</p>
-                    <p class="text-[11px] text-slate-400">Moving this item from Wishlist to your Active Studio Gear manifest.</p>
-                </div>
-
-                <form id="purchase-form" onsubmit="confirmPurchase(event)" class="space-y-3">
-                    <input type="hidden" id="purchase-item-id">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Set Condition / Role</label>
-                        <select id="purchase-condition" class="w-full bg-darkBg border border-borderSubtle rounded-xl px-3 py-2 text-xs text-white">
-                            <option value="Primary Body">Primary Body</option>
-                            <option value="Active Field" selected>Active Field</option>
-                            <option value="Secondary / Backup">Secondary / Backup</option>
-                            <option value="Mint Condition">Mint Condition</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-400 mb-1">Serial Number (Optional)</label>
-                        <input type="text" id="purchase-serial" placeholder="e.g. SN-1230491" class="w-full bg-darkBg border border-borderSubtle rounded-xl px-3 py-2 text-xs text-white font-mono">
-                    </div>
-                    <div class="flex items-center space-x-2 pt-2">
-                        <button type="button" onclick="closePurchaseModal()" class="flex-1 bg-darkBg text-slate-400 py-2 rounded-xl text-xs font-medium">Cancel</button>
-                        <button type="submit" class="flex-1 bg-gradient-to-r from-cyan-500 to-teal-500 text-slate-950 font-bold py-2 rounded-xl text-xs">Confirm Transfer</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- IMAGE LIGHTBOX -->
-        <div id="lightbox-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4" onclick="closeLightbox()">
-            <div class="relative max-w-lg w-full bg-cardBg border border-borderSubtle rounded-2xl overflow-hidden shadow-2xl" onclick="event.stopPropagation()">
-                <button onclick="closeLightbox()" class="absolute top-3 right-3 z-10 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center backdrop-blur-md hover:bg-black">
-                    <i class="fa-solid fa-xmark text-sm"></i>
-                </button>
-                <img id="lightbox-img" src="" class="w-full h-72 object-cover bg-darkBg">
-                <div class="p-4 bg-cardBg">
-                    <h4 id="lightbox-title" class="text-sm font-bold text-white"></h4>
-                    <p id="lightbox-sub" class="text-xs text-slate-400 mt-0.5"></p>
-                </div>
-            </div>
-        </div>
-
-        <!-- NOTIFICATION TOAST -->
-        <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 bg-slate-900 border border-cyan-500/30 text-slate-100 text-xs px-4 py-2.5 rounded-2xl shadow-xl flex items-center space-x-2 transition-all opacity-0 pointer-events-none transform translate-y-3">
-            <i id="toast-icon" class="fa-solid fa-circle-info text-cyanAccent"></i>
-            <span id="toast-message">Notification message</span>
-        </div>
-
-        <!-- GEMINI AI ASSISTANT MODAL -->
-        <div id="gemini-modal" class="hidden fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
-            <div class="bg-cardBg border-t sm:border border-borderSubtle rounded-t-3xl sm:rounded-2xl w-full max-w-lg p-5 max-h-[90vh] flex flex-col shadow-2xl space-y-3">
-                
-                <div class="flex items-center justify-between border-b border-borderSubtle/80 pb-3 shrink-0">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white text-sm shadow-md">
-                            <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-sm font-bold text-white flex items-center gap-1.5">
-                                Gemini Photography Advisor
-                            </h2>
-                            <p class="text-[10px] text-slate-400">Context-Aware Gear & Trip Optimizer</p>
-                        </div>
-                    </div>
-                    <button onclick="closeGeminiModal()" class="text-slate-400 hover:text-white p-1">
-                        <i class="fa-solid fa-xmark text-lg"></i>
-                    </button>
-                </div>
-
-                <!-- PRESET QUICK PROMPTS -->
-                <div class="shrink-0 space-y-1.5">
-                    <p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Quick Trip Presets:</p>
-                    <div class="flex items-center space-x-1.5 overflow-x-auto no-scrollbar pb-1 text-[11px]">
-                        <button onclick="applyPresetPrompt('🇮🇳 Pack light for India trip: Suggest optimal gear to take & what to leave at home.')" 
-                            class="bg-darkBg hover:bg-slate-800 border border-purple-500/30 text-purple-300 px-2.5 py-1.5 rounded-xl whitespace-nowrap transition shrink-0">
-                            🇮🇳 Travel Light (India)
-                        </button>
-                        <button onclick="applyPresetPrompt('🌌 Astrophotography shoot: Which of my owned gear should I pack for stars/milky way?')" 
-                            class="bg-darkBg hover:bg-slate-800 border border-indigo-500/30 text-indigo-300 px-2.5 py-1.5 rounded-xl whitespace-nowrap transition shrink-0">
-                            🌌 Astro Session
-                        </button>
-                        <button onclick="applyPresetPrompt('❄️ Shooting Northern Lights: Recommend gear list from my manifest & camera setup advice.')" 
-                            class="bg-darkBg hover:bg-slate-800 border border-cyan-500/30 text-cyan-300 px-2.5 py-1.5 rounded-xl whitespace-nowrap transition shrink-0">
-                            ❄️ Northern Lights
-                        </button>
-                        <button onclick="applyPresetPrompt('📊 Gear gap analysis: Based on my current owned gear and wishlist, what should I buy next?')" 
-                            class="bg-darkBg hover:bg-slate-800 border border-emerald-500/30 text-emerald-300 px-2.5 py-1.5 rounded-xl whitespace-nowrap transition shrink-0">
-                            📊 Inventory Audit
-                        </button>
-                    </div>
-                </div>
-
-                <!-- CHAT CONVERSATION LOG -->
-                <div id="gemini-chat-log" class="flex-1 min-h-[220px] max-h-[350px] overflow-y-auto bg-darkBg/90 border border-borderSubtle rounded-2xl p-3 space-y-3 text-xs leading-relaxed">
-                    <div class="bg-purple-950/30 border border-purple-500/20 text-slate-200 p-3 rounded-xl space-y-1">
-                        <p class="font-bold text-purple-300 flex items-center gap-1.5">
-                            <i class="fa-solid fa-sparkles"></i> Hello Photographer!
-                        </p>
-                        <p class="text-[11px] text-slate-300">
-                            I have scanned your <span class="text-cyanAccent font-semibold" id="ai-inventory-count">0 owned gear items</span> and <span class="text-skyAccent font-semibold" id="ai-wishlist-count">0 wishlist items</span>. Ask me to assemble a packing kit for any destination or shooting condition!
-                        </p>
-                    </div>
-                </div>
-
-                <!-- INPUT BAR -->
-                <form onsubmit="handleGeminiSubmit(event)" class="flex items-center space-x-2 shrink-0 pt-1">
-                    <input type="text" id="gemini-input" placeholder="Ask Gemini (e.g. Gear for Northern Lights)..." 
-                        class="flex-1 bg-darkBg border border-borderSubtle text-xs text-slate-100 placeholder-slate-500 rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-purple-500 transition">
-                    <button type="submit" class="bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-400 hover:to-purple-400 text-white font-bold px-3.5 py-2.5 rounded-xl transition text-xs flex items-center justify-center">
-                        <i class="fa-solid fa-paper-plane"></i>
-                    </button>
-                </form>
-
-            </div>
-        </div>
-
-    </div>
-
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
-        // GENERATE DYNAMIC PWA MANIFEST FOR HOME SCREEN INSTALLATION
-        (function initPWA() {
-            const manifest = {
-                name: "Aperture Vault - Pro Gear Studio",
-                short_name: "ApertureVault",
-                start_url: "./",
-                display: "standalone",
-                background_color: "#090d16",
-                theme_color: "#090d16",
-                icons: [
-                    {
-                        src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512' fill='%2306b6d4'><path d='M149.1 64c-11 0-21 5.4-27 14.5L102 106.7 96 112H48C21.5 112 0 133.5 0 160V416c0 26.5 21.5 48 48 48H464c26.5 0 48-21.5 48-48V160c0-26.5-21.5-48-48-48H416l-6-5.3L389.9 78.5c-6-9.1-16-14.5-27-14.5H149.1zM256 192a96 96 0 1 1 0 192 96 96 0 1 1 0-192z'/></svg>",
-                        sizes: "512x512",
-                        type: "image/svg+xml",
-                        purpose: "any maskable"
-                    }
-                ]
-            };
-            const stringManifest = JSON.stringify(manifest);
-            const blob = new Blob([stringManifest], {type: 'application/json'});
-            const manifestURL = URL.createObjectURL(blob);
-            document.getElementById('manifest-placeholder').setAttribute('href', manifestURL);
-        })();
-
-        // SAMPLE PHOTOS FOR DEFAULT ITEMS
-        const defaultGear = [
-            {
-                id: '1',
-                type: 'owned',
-                title: 'Canon EOS R5 Mark II',
-                category: 'Cameras',
-                condition: 'Primary Body',
-                purchaseDate: '2024',
-                serial: 'SN-882049182',
-                image: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&q=80',
-                notes: '45MP Stacked sensor, eye control AF. Primary body for landscape & wildlife.'
-            },
-            {
-                id: '2',
-                type: 'owned',
-                title: 'Canon RF 70-200mm f/2.8L IS USM',
-                category: 'Lenses',
-                condition: 'Active Field',
-                purchaseDate: '2023',
-                serial: 'SN-491028301',
-                image: 'https://images.unsplash.com/photo-1617005082133-548c4dd27f35?w=500&q=80',
-                notes: '77mm filter thread. Ultra compact telephoto zoom.'
-            },
-            {
-                id: '3',
-                type: 'owned',
-                title: 'Peak Design Carbon Travel Tripod',
-                category: 'Field Gear & Support',
-                condition: 'Active Field',
-                purchaseDate: '2022',
-                serial: '',
-                image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&q=80',
-                notes: 'Ultra compact carbon fiber frame with integrated mobile mount.'
-            },
-            {
-                id: '4',
-                type: 'owned',
-                title: 'DJI Mini 4 Pro Fly More Combo',
-                category: 'Drone & Aerial',
-                condition: 'Active Field',
-                purchaseDate: '2024',
-                serial: 'DJI-99210-A',
-                image: 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=500&q=80',
-                notes: 'Sub-249g drone for aerial landscape perspectives.'
-            },
-            {
-                id: '5',
-                type: 'wishlist',
-                title: 'Canon RF 15-35mm f/2.8L IS USM',
-                category: 'Lenses',
-                priority: 'High',
-                price: 2199,
-                purpose: 'Deep sky astrophotography & wide landscape panoramas',
-                image: 'https://images.unsplash.com/photo-1606983340126-99ab4feaa64a?w=500&q=80',
-                notes: '82mm thread size, compatible with magnetic filter system.'
-            },
-            {
-                id: '6',
-                type: 'wishlist',
-                title: 'Move Shoot Move Nomad Star Tracker',
-                category: 'Astro & Specialty',
-                priority: 'Medium',
-                price: 349,
-                purpose: 'Tracking long exposure Milky Way shots without pinpoint trailing',
-                image: 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=500&q=80',
-                notes: 'Compact star tracker designed for remote alpine backpacking.'
-            }
-        ];
-
-        // DEFAULT CATEGORY FALLBACK IMAGES
-        const categoryFallbackImages = {
-            'Cameras': 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&q=80',
-            'Lenses': 'https://images.unsplash.com/photo-1617005082133-548c4dd27f35?w=500&q=80',
-            'Drone & Aerial': 'https://images.unsplash.com/photo-1508614589041-895b88991e3e?w=500&q=80',
-            'Field Gear & Support': 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=500&q=80',
-            'Lighting & Filters': 'https://images.unsplash.com/photo-1520390138845-fd2d229dd553?w=500&q=80',
-            'Storage & Accessories': 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=500&q=80',
-            'Astro & Specialty': 'https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?w=500&q=80'
-        };
-
-        const categoryIcons = {
-            'Cameras': 'fa-camera',
-            'Lenses': 'fa-circle-dot',
-            'Drone & Aerial': 'fa-helicopter',
-            'Field Gear & Support': 'fa-campground',
-            'Lighting & Filters': 'fa-lightbulb',
-            'Storage & Accessories': 'fa-hard-drive',
-            'Astro & Specialty': 'fa-star'
-        };
-
-        // STATE MANAGEMENT
-        let gearList = [];
-        let activeTab = 'owned';
-        let activeCategory = 'ALL';
-        let searchQuery = '';
-
-        // INITIALIZATION
-        window.addEventListener('DOMContentLoaded', () => {
-            loadGearData();
-            renderItems();
-        });
-
-        function loadGearData() {
-            const stored = localStorage.getItem('aperture_vault_gear_pro');
-            if (stored) {
-                try {
-                    gearList = JSON.parse(stored);
-                } catch (e) {
-                    gearList = defaultGear;
-                }
-            } else {
-                gearList = defaultGear;
-                saveGearData();
-            }
-        }
-
-        function saveGearData() {
-            localStorage.setItem('aperture_vault_gear_pro', JSON.stringify(gearList));
-            updateStats();
-        }
-
-        // TAB SWITCHING
-        function switchTab(tab) {
-            activeTab = tab;
-            
-            const ownedBtn = document.getElementById('nav-btn-owned');
-            const wishlistBtn = document.getElementById('nav-btn-wishlist');
-
-            if (tab === 'owned') {
-                ownedBtn.className = "flex-1 flex flex-col items-center py-1 text-cyanAccent transition";
-                wishlistBtn.className = "flex-1 flex flex-col items-center py-1 text-slate-500 hover:text-slate-300 transition";
-            } else {
-                wishlistBtn.className = "flex-1 flex flex-col items-center py-1 text-cyanAccent transition";
-                ownedBtn.className = "flex-1 flex flex-col items-center py-1 text-slate-500 hover:text-slate-300 transition";
-            }
-
-            renderItems();
-        }
-
-        // CATEGORY FILTER
-        function setCategoryFilter(cat) {
-            activeCategory = cat;
-            
-            document.querySelectorAll('.cat-pill').forEach(btn => {
-                btn.className = "cat-pill bg-cardBg border border-borderSubtle text-slate-400 hover:text-white px-3 py-1.5 rounded-xl whitespace-nowrap transition";
-            });
-
-            const activeBtn = document.getElementById(`cat-btn-${cat}`);
-            if (activeBtn) {
-                activeBtn.className = "cat-pill bg-gradient-to-r from-cyan-500 to-teal-500 text-slate-950 font-bold px-3 py-1.5 rounded-xl whitespace-nowrap transition shadow-sm";
-            }
-
-            renderItems();
-        }
-
-        // SEARCH
-        function handleSearch() {
-            const input = document.getElementById('search-input');
-            searchQuery = input.value.trim().toLowerCase();
-            
-            const clearBtn = document.getElementById('clear-search-btn');
-            if (searchQuery.length > 0) {
-                clearBtn.classList.remove('hidden');
-            } else {
-                clearBtn.classList.add('hidden');
-            }
-
-            renderItems();
-        }
-
-        function clearSearch() {
-            document.getElementById('search-input').value = '';
-            handleSearch();
-        }
-
-        // STATS COMPUTATION
-        function updateStats() {
-            const ownedItems = gearList.filter(i => i.type === 'owned');
-            const wishlistItems = gearList.filter(i => i.type === 'wishlist');
-
-            document.getElementById('stat-owned-count').innerText = ownedItems.length;
-            document.getElementById('stat-wishlist-count').innerText = wishlistItems.length;
-
-            const totalWishlistVal = wishlistItems.reduce((acc, item) => acc + (parseFloat(item.price) || 0), 0);
-            document.getElementById('stat-wishlist-val').innerText = `$${totalWishlistVal.toLocaleString()}`;
-        }
-
-        // RENDER GEAR CARDS
-        function renderItems() {
-            updateStats();
-            const container = document.getElementById('items-list');
-            const emptyState = document.getElementById('empty-state');
-            container.innerHTML = '';
-
-            const filtered = gearList.filter(item => {
-                if (item.type !== activeTab) return false;
-                if (activeCategory !== 'ALL' && item.category !== activeCategory) return false;
-                if (searchQuery) {
-                    const matchTitle = item.title.toLowerCase().includes(searchQuery);
-                    const matchCategory = item.category.toLowerCase().includes(searchQuery);
-                    const matchNotes = item.notes && item.notes.toLowerCase().includes(searchQuery);
-                    const matchSerial = item.serial && item.serial.toLowerCase().includes(searchQuery);
-                    const matchPurpose = item.purpose && item.purpose.toLowerCase().includes(searchQuery);
-                    return matchTitle || matchCategory || matchNotes || matchSerial || matchPurpose;
-                }
-                return true;
-            });
-
-            if (filtered.length === 0) {
-                emptyState.classList.remove('hidden');
-                document.getElementById('empty-state-msg').innerText = searchQuery 
-                    ? `No ${activeTab} gear matches "${searchQuery}"`
-                    : `Your ${activeTab === 'owned' ? 'gear list' : 'wishlist'} is currently empty for this category.`;
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-
-            if (activeTab === 'wishlist') {
-                const priorityWeight = { 'High': 3, 'Medium': 2, 'Low': 1 };
-                filtered.sort((a, b) => (priorityWeight[b.priority] || 0) - (priorityWeight[a.priority] || 0));
-            } else {
-                filtered.sort((a, b) => a.title.localeCompare(b.title));
-            }
-
-            filtered.forEach(item => {
-                const iconClass = categoryIcons[item.category] || 'fa-camera';
-                const imageSrc = item.image || categoryFallbackImages[item.category] || categoryFallbackImages['Cameras'];
-                
-                let badgeHTML = '';
-                if (item.type === 'owned') {
-                    badgeHTML = `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">${escapeHtml(item.condition || 'Owned')}</span>`;
-                } else {
-                    let pColor = 'bg-slate-800 text-slate-300';
-                    if (item.priority === 'High') pColor = 'bg-rose-500/20 text-rose-300 border border-rose-500/30';
-                    if (item.priority === 'Medium') pColor = 'bg-amber-500/20 text-amber-300 border border-amber-500/30';
-                    if (item.priority === 'Low') pColor = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
-
-                    badgeHTML = `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold ${pColor}">${escapeHtml(item.priority || 'Low')} Priority</span>`;
-                }
-
-                const card = document.createElement('div');
-                card.className = "bg-cardBg border border-borderSubtle hover:border-slate-600 rounded-2xl p-3.5 transition-all shadow-sm space-y-3 group hover:shadow-md";
-
-                card.innerHTML = `
-                    <div class="flex items-start justify-between">
-                        <div class="flex items-start space-x-3 pr-2 min-w-0">
-                            <!-- Thumbnail Image / Icon -->
-                            <div onclick="openLightbox('${imageSrc}', '${escapeHtml(item.title)}', '${item.category}')" 
-                                class="w-14 h-14 rounded-xl bg-darkBg border border-borderSubtle overflow-hidden shrink-0 relative cursor-pointer group-hover:border-cyan-500/50 transition">
-                                <img src="${imageSrc}" alt="${escapeHtml(item.title)}" class="w-full h-full object-cover group-hover:scale-110 transition duration-300" onerror="this.src='${categoryFallbackImages[item.category]}'">
-                                <div class="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition">
-                                    <i class="fa-solid fa-expand text-white text-xs"></i>
-                                </div>
-                            </div>
-                            
-                            <div class="min-w-0 flex-1">
-                                <h3 class="text-xs sm:text-sm font-bold text-white leading-snug truncate">${escapeHtml(item.title)}</h3>
-                                <div class="flex items-center space-x-2 mt-1 flex-wrap gap-y-1">
-                                    <span class="text-[11px] text-slate-400 font-medium flex items-center gap-1">
-                                        <i class="fa-solid ${iconClass} text-[10px] text-cyan-400"></i>
-                                        ${item.category}
-                                    </span>
-                                    ${badgeHTML}
-                                    ${item.purchaseDate ? `<span class="text-[10px] text-slate-500">(${escapeHtml(item.purchaseDate)})</span>` : ''}
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Actions -->
-                        <div class="flex items-center space-x-1 shrink-0">
-                            <button onclick="editItem('${item.id}')" title="Edit" class="text-slate-500 hover:text-slate-200 p-1.5 rounded-lg hover:bg-darkBg transition">
-                                <i class="fa-solid fa-pen-to-square text-xs"></i>
-                            </button>
-                            <button onclick="deleteItem('${item.id}')" title="Delete" class="text-slate-500 hover:text-rose-400 p-1.5 rounded-lg hover:bg-darkBg transition">
-                                <i class="fa-solid fa-trash-can text-xs"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- WISHLIST SPECIFIC DETAILS -->
-                    ${item.type === 'wishlist' ? `
-                        <div class="bg-darkBg/90 rounded-xl p-2.5 border border-borderSubtle/60 text-xs space-y-1">
-                            ${item.price ? `<div class="flex justify-between items-center"><span class="text-slate-400">Target Cost:</span> <span class="font-extrabold text-sky-400">$${parseFloat(item.price).toLocaleString()}</span></div>` : ''}
-                            ${item.purpose ? `<div class="text-slate-300 truncate"><span class="text-slate-500">Goal:</span> "${escapeHtml(item.purpose)}"</div>` : ''}
-                        </div>
-                    ` : ''}
-
-                    <!-- OWNED SPECIFIC SERIAL -->
-                    ${item.type === 'owned' && item.serial ? `
-                        <div class="text-[11px] font-mono text-slate-400 bg-darkBg/60 px-2.5 py-1 rounded-lg border border-borderSubtle/40 inline-block">
-                            SN: <span class="text-slate-300 font-semibold">${escapeHtml(item.serial)}</span>
-                        </div>
-                    ` : ''}
-
-                    <!-- NOTES FIELD -->
-                    ${item.notes ? `
-                        <p class="text-xs text-slate-400 italic bg-darkBg/40 p-2 rounded-xl border border-borderSubtle/40 leading-relaxed">${escapeHtml(item.notes)}</p>
-                    ` : ''}
-
-                    <!-- WISHLIST QUICK ACTION -->
-                    ${item.type === 'wishlist' ? `
-                        <div class="pt-1">
-                            <button onclick="promptPurchase('${item.id}')" class="w-full bg-gradient-to-r from-cyan-500/10 to-teal-500/10 hover:from-cyan-500 hover:to-teal-500 text-cyanAccent hover:text-slate-950 border border-cyan-500/30 font-bold text-xs py-2 rounded-xl transition flex items-center justify-center space-x-1.5">
-                                <i class="fa-solid fa-cart-flatbed-suitcases"></i>
-                                <span>Move to Active Studio Gear</span>
-                            </button>
-                        </div>
-                    ` : ''}
-                `;
-
-                container.appendChild(card);
-            });
-        }
-
-        // LIGHTBOX PREVIEW
-        function openLightbox(imgSrc, title, sub) {
-            document.getElementById('lightbox-img').src = imgSrc;
-            document.getElementById('lightbox-title').innerText = title;
-            document.getElementById('lightbox-sub').innerText = sub;
-            document.getElementById('lightbox-modal').classList.remove('hidden');
-        }
-
-        function closeLightbox() {
-            document.getElementById('lightbox-modal').classList.add('hidden');
-        }
-
-        // MODAL MANAGEMENT
-        function openModal(editId = null) {
-            const modal = document.getElementById('item-modal');
-            const titleEl = document.getElementById('modal-title');
-            const form = document.getElementById('item-form');
-            form.reset();
-
-            if (editId) {
-                const item = gearList.find(i => i.id === editId);
-                if (!item) return;
-
-                titleEl.innerHTML = '<i class="fa-solid fa-pen-to-square text-cyanAccent"></i><span>Edit Gear Entry</span>';
-                document.getElementById('form-item-id').value = item.id;
-                setFormType(item.type);
-                
-                document.getElementById('form-title').value = item.title;
-                document.getElementById('form-category').value = item.category;
-                document.getElementById('form-image').value = item.image || '';
-                document.getElementById('form-notes').value = item.notes || '';
-
-                if (item.type === 'owned') {
-                    document.getElementById('form-condition').value = item.condition || 'Active Field';
-                    document.getElementById('form-purchase-date').value = item.purchaseDate || '';
-                    document.getElementById('form-serial').value = item.serial || '';
-                } else {
-                    document.getElementById('form-priority').value = item.priority || 'High';
-                    document.getElementById('form-price').value = item.price || '';
-                    document.getElementById('form-purpose').value = item.purpose || '';
-                }
-            } else {
-                titleEl.innerHTML = '<i class="fa-solid fa-sliders text-cyanAccent"></i><span>Add Gear Entry</span>';
-                document.getElementById('form-item-id').value = '';
-                setFormType(activeTab);
-            }
-
-            modal.classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('item-modal').classList.add('hidden');
-        }
-
-        function setFormType(type) {
-            document.getElementById('form-type').value = type;
-            const ownedBtn = document.getElementById('form-type-owned');
-            const wishlistBtn = document.getElementById('form-type-wishlist');
-            const ownedFields = document.getElementById('owned-fields');
-            const wishlistFields = document.getElementById('wishlist-fields');
-
-            if (type === 'owned') {
-                ownedBtn.className = "py-2 text-xs font-bold rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 text-slate-950 transition";
-                wishlistBtn.className = "py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition";
-                ownedFields.classList.remove('hidden');
-                wishlistFields.classList.add('hidden');
-            } else {
-                wishlistBtn.className = "py-2 text-xs font-bold rounded-lg bg-gradient-to-r from-cyan-500 to-teal-500 text-slate-950 transition";
-                ownedBtn.className = "py-2 text-xs font-bold rounded-lg text-slate-400 hover:text-white transition";
-                wishlistFields.classList.remove('hidden');
-                ownedFields.classList.add('hidden');
-            }
-        }
-
-        // SAVE ITEM
-        function saveItem(e) {
-            e.preventDefault();
-
-            const id = document.getElementById('form-item-id').value;
-            const type = document.getElementById('form-type').value;
-            const title = document.getElementById('form-title').value.trim();
-            const category = document.getElementById('form-category').value;
-            const image = document.getElementById('form-image').value.trim();
-            const notes = document.getElementById('form-notes').value.trim();
-
-            if (!title) return;
-
-            const itemData = {
-                id: id || Date.now().toString(),
-                type,
-                title,
-                category,
-                image,
-                notes
-            };
-
-            if (type === 'owned') {
-                itemData.condition = document.getElementById('form-condition').value;
-                itemData.purchaseDate = document.getElementById('form-purchase-date').value.trim();
-                itemData.serial = document.getElementById('form-serial').value.trim();
-            } else {
-                itemData.priority = document.getElementById('form-priority').value;
-                itemData.price = parseFloat(document.getElementById('form-price').value) || 0;
-                itemData.purpose = document.getElementById('form-purpose').value.trim();
-            }
-
-            if (id) {
-                const index = gearList.findIndex(i => i.id === id);
-                if (index !== -1) gearList[index] = itemData;
-                showToast('Gear entry updated');
-            } else {
-                gearList.push(itemData);
-                showToast('New entry added to ' + (type === 'owned' ? 'Owned Gear' : 'Wishlist'));
-            }
-
-            saveGearData();
-            renderItems();
-            closeModal();
-        }
-
-        function editItem(id) {
-            openModal(id);
-        }
-
-        function deleteItem(id) {
-            if (confirm("Are you sure you want to remove this item?")) {
-                gearList = gearList.filter(i => i.id !== id);
-                saveGearData();
-                renderItems();
-                showToast('Item deleted');
-            }
-        }
-
-        // WISHLIST PURCHASE PROMPT
-        function promptPurchase(id) {
-            const item = gearList.find(i => i.id === id);
-            if (!item) return;
-
-            document.getElementById('purchase-item-id').value = item.id;
-            document.getElementById('purchase-item-name').innerText = item.title;
-            document.getElementById('purchase-modal').classList.remove('hidden');
-        }
-
-        function closePurchaseModal() {
-            document.getElementById('purchase-modal').classList.add('hidden');
-        }
-
-        function confirmPurchase(e) {
-            e.preventDefault();
-            const id = document.getElementById('purchase-item-id').value;
-            const item = gearList.find(i => i.id === id);
-
-            if (item) {
-                item.type = 'owned';
-                item.condition = document.getElementById('purchase-condition').value;
-                item.serial = document.getElementById('purchase-serial').value.trim();
-                item.purchaseDate = new Date().getFullYear().toString();
-
-                saveGearData();
-                showToast(`🎉 "${item.title}" moved to Studio Gear!`);
-                renderItems();
-            }
-
-            closePurchaseModal();
-        }
-
-        // BACKUP & RESTORE
-        function exportData() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(gearList, null, 2));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `aperture_vault_backup_${new Date().toISOString().slice(0,10)}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-            showToast('Gear backup JSON exported');
-        }
-
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const parsed = JSON.parse(e.target.result);
-                    if (Array.isArray(parsed)) {
-                        gearList = parsed;
-                        saveGearData();
-                        renderItems();
-                        showToast('Manifest successfully restored');
-                    } else {
-                        alert('Invalid backup format.');
-                    }
-                } catch (err) {
-                    alert('Error loading JSON file.');
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        function resetDataPrompt() {
-            if (confirm("Reset gear back to default sample items?")) {
-                gearList = defaultGear;
-                saveGearData();
-                renderItems();
-                showToast('Reset to default gear');
-            }
-        }
-
-        // TOAST NOTIFICATION
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toast-message').innerText = message;
-            toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-3');
-            
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-3');
-            }, 2500);
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/&/g, "&amp;")
-                      .replace(/</g, "&lt;")
-                      .replace(/>/g, "&gt;")
-                      .replace(/"/g, "&quot;")
-                      .replace(/'/g, "&#039;");
-        }
-
-        // GEMINI AI INTEGRATION LOGIC
-        function openGeminiModal() {
-            const owned = gearList.filter(i => i.type === 'owned');
-            const wishlist = gearList.filter(i => i.type === 'wishlist');
-
-            document.getElementById('ai-inventory-count').innerText = `${owned.length} owned gear items`;
-            document.getElementById('ai-wishlist-count').innerText = `${wishlist.length} wishlist items`;
-
-            document.getElementById('gemini-modal').classList.remove('hidden');
-        }
-
-        function closeGeminiModal() {
-            document.getElementById('gemini-modal').classList.add('hidden');
-        }
-
-        function applyPresetPrompt(promptText) {
-            document.getElementById('gemini-input').value = promptText;
-            handleGeminiSubmit(new Event('submit'));
-        }
-
-        function handleGeminiSubmit(e) {
-            e.preventDefault();
-            const input = document.getElementById('gemini-input');
-            const query = input.value.trim();
-            if (!query) return;
-
-            const chatLog = document.getElementById('gemini-chat-log');
-
-            // Render User Bubble
-            const userBubble = document.createElement('div');
-            userBubble.className = "bg-purple-600/20 border border-purple-500/30 text-purple-100 p-2.5 rounded-xl text-xs ml-6 ml-auto max-w-[85%] font-medium";
-            userBubble.innerText = query;
-            chatLog.appendChild(userBubble);
-
-            input.value = '';
-            chatLog.scrollTop = chatLog.scrollHeight;
-
-            // Generate AI Context-Aware Response
-            setTimeout(() => {
-                const aiBubble = document.createElement('div');
-                aiBubble.className = "bg-cardBg border border-borderSubtle text-slate-200 p-3 rounded-xl text-xs space-y-2 max-w-[92%]";
-                
-                const responseText = generateGeminiResponse(query);
-                aiBubble.innerHTML = responseText;
-                
-                chatLog.appendChild(aiBubble);
-                chatLog.scrollTop = chatLog.scrollHeight;
-            }, 600);
-        }
-
-        function generateGeminiResponse(query) {
-            const q = query.toLowerCase();
-            const owned = gearList.filter(i => i.type === 'owned');
-            const wishlist = gearList.filter(i => i.type === 'wishlist');
-
-            let ownedListText = owned.length > 0 
-                ? owned.map(i => `• <b>${escapeHtml(i.title)}</b> (${i.category})`).join('<br>') 
-                : '<i>No owned gear recorded yet.</i>';
-
-            if (q.includes('india') || q.includes('light') || q.includes('travel')) {
-                return `
-                    <div class="font-bold text-cyan-400 flex items-center gap-1"><i class="fa-solid fa-plane"></i> Light Travel Kit (e.g. India Trip)</div>
-                    <p class="text-[11px] text-slate-300">To travel light while remaining versatile for street, portrait, and heritage landscapes:</p>
-                    <div class="bg-darkBg p-2 rounded-lg border border-borderSubtle text-[11px] space-y-1">
-                        <div class="text-emerald-400 font-semibold">🎒 Pack in Backpack:</div>
-                        ${owned.filter(i => i.category === 'Cameras' || i.category === 'Lenses').slice(0, 2).map(i => `• ${i.title}`).join('<br>') || '• Primary Camera Body & Walkaround Zoom Lens'}
-                        • Peak Design Carbon Tripod or Mini Support
-                    </div>
-                    <div class="bg-darkBg p-2 rounded-lg border border-borderSubtle text-[11px] space-y-1">
-                        <div class="text-rose-400 font-semibold">🏠 Leave at Home:</div>
-                        • Heavy telephotos / excess backup gear
-                        • Heavy studio lights & softboxes
-                    </div>
-                `;
-            }
-
-            if (q.includes('northern lights') || q.includes('aurora') || q.includes('cold')) {
-                return `
-                    <div class="font-bold text-sky-400 flex items-center gap-1"><i class="fa-solid fa-snowflake"></i> Northern Lights (Aurora) Setup</div>
-                    <p class="text-[11px] text-slate-300">Requirements: Wide fast lens (f/1.4 - f/2.8), sturdy tripod, and extra batteries in thermal pockets.</p>
-                    <div class="bg-darkBg p-2 rounded-lg border border-borderSubtle text-[11px] space-y-1">
-                        <div class="text-cyan-400 font-semibold">🎯 Selected From Your Vault:</div>
-                        ${ownedListText}
-                    </div>
-                    <p class="text-[10px] text-amber-300 bg-amber-500/10 p-1.5 rounded border border-amber-500/20">💡 Pro Tip: Turn off image stabilization on tripod & use manual focus set to infinity prior to freezing temperatures.</p>
-                `;
-            }
-
-            if (q.includes('astro') || q.includes('stars') || q.includes('milky way')) {
-                return `
-                    <div class="font-bold text-purple-400 flex items-center gap-1"><i class="fa-solid fa-star"></i> Astrophotography Kit Assembly</div>
-                    <p class="text-[11px] text-slate-300">Here is your customized night sky rig from your current manifest:</p>
-                    <div class="bg-darkBg p-2 rounded-lg border border-borderSubtle text-[11px] space-y-1">
-                        <div class="text-cyan-400 font-semibold">🌌 Essential Rig:</div>
-                        ${owned.filter(i => i.category === 'Cameras' || i.category === 'Lenses' || i.category === 'Astro & Specialty').map(i => `• ${i.title}`).join('<br>') || '• Camera Body + Ultra Wide Fast Prime Lens'}
-                    </div>
-                    ${wishlist.length > 0 ? `<p class="text-[11px] text-slate-400">Consider upgrading with your wishlist target: <b>${wishlist[0].title}</b></p>` : ''}
-                `;
-            }
-
-            return `
-                <div class="font-bold text-cyan-400 flex items-center gap-1"><i class="fa-solid fa-list-check"></i> Gear Manifest Analysis</div>
-                <p class="text-[11px] text-slate-300">Based on your current studio data:</p>
-                <div class="bg-darkBg p-2 rounded-lg border border-borderSubtle text-[11px] space-y-1">
-                    <div class="text-slate-400 font-semibold">Currently Owned Items (${owned.length}):</div>
-                    ${ownedListText}
-                </div>
-                <p class="text-[11px] text-slate-300">You can ask specifically about packing for <b>Northern Lights</b>, <b>India Travel</b>, or <b>Astro Shoots</b>!</p>
-            `;
-        }
-    </script>
-
-    <!-- iOS Home Screen App Title & Standalone Configuration -->
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Aperture Vault - Photography Gear & Wishlist</title>
+<!-- iOS Home Screen App Title & Standalone Configuration -->
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Aperture Vault" />
@@ -1176,5 +12,408 @@
 <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='110' fill='%230f172a'/><circle cx='256' cy='256' r='180' fill='%2306b6d4' opacity='0.2'/><circle cx='256' cy='256' r='140' fill='none' stroke='%2306b6d4' stroke-width='24'/><circle cx='256' cy='256' r='80' fill='none' stroke='%2338bdf8' stroke-width='16'/><path d='M256 116 L256 176 M256 336 L256 396 M116 256 L176 256 M336 256 L396 256 M157 157 L199 199 M313 313 L355 355 M157 355 L199 313 M313 199 L355 157' stroke='%2322d3ee' stroke-width='12' stroke-linecap='round'/><circle cx='256' cy='256' r='45' fill='%2306b6d4'/></svg>" />
 <!-- Favicon for Browsers -->
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%2306b6d4'/></svg>" />
+<!-- Tailwind CSS & FontAwesome -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+darkMode: 'class',
+theme: {
+extend: {
+colors: {
+brand: {
+50: '#ecfeff',
+100: '#cffafe',
+400: '#22d3ee',
+500: '#06b6d4',
+600: '#0891b2',
+900: '#164e63',
+},
+darkbg: '#090d16',
+darkpanel: '#111827',
+darkcard: '#1f2937'
+}
+}
+}
+}
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+body {
+background-color: #090d16;
+color: #f3f4f6;
+font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+-webkit-tap-highlight-color: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #111827; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #06b6d4; border-radius: 4px; }
+</style>
+</head>
+<body class="min-h-screen flex flex-col pb-24">
+<!-- TOP HEADER -->
+<header class="sticky top-0 z-30 bg-gray-900/90 backdrop-blur-md border-b border-gray-800 px-4 py-3 flex justify-between items-center shadow-lg">
+<div class="flex items-center space-x-3">
+<div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20">
+<i class="fa-solid font-bold fa-camera text-lg"></i>
+</div>
+<div>
+<h1 class="text-lg font-bold text-white tracking-wide leading-none">Aperture Vault</h1>
+<p class="text-xs text-cyan-400 font-medium">Gear & Wishlist Intelligence</p>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<!-- Gemini AI Assistant Button -->
+<button onclick="toggleGeminiModal()" class="flex items-center space-x-1.5 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-400 hover:to-teal-400 text-gray-950 font-bold px-3 py-1.5 rounded-full shadow-md text-xs transition-all active:scale-95">
+<i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+<span>Gemini AI</span>
+</button>
+<button onclick="exportData()" class="text-gray-400 hover:text-cyan-400 p-2 text-sm" title="Export updated index.html for GitHub">
+<i class="fa-solid fa-download"></i>
+</button>
+</div>
+</header>
+<!-- DASHBOARD STATS OVERVIEW -->
+<section class="px-4 py-4 grid grid-cols-3 gap-2.5">
+<div class="bg-gray-900/80 border border-gray-800 rounded-xl p-3 text-center">
+<p class="text-xs text-gray-400">Owned Gear</p>
+<p id="stat-owned-count" class="text-xl font-bold text-cyan-400 mt-1">0</p>
+</div>
+<div class="bg-gray-900/80 border border-gray-800 rounded-xl p-3 text-center">
+<p class="text-xs text-gray-400">Wishlist Items</p>
+<p id="stat-wishlist-count" class="text-xl font-bold text-teal-400 mt-1">0</p>
+</div>
+<div class="bg-gray-900/80 border border-gray-800 rounded-xl p-3 text-center">
+<p class="text-xs text-gray-400">Target Budget</p>
+<p id="stat-wishlist-val" class="text-xl font-bold text-amber-400 mt-1">€0</p>
+</div>
+</section>
+<!-- NAVIGATION TABS -->
+<div class="px-4 mb-3">
+<div class="bg-gray-900 p-1 rounded-xl border border-gray-800 flex">
+<button id="tab-owned-btn" onclick="switchTab('owned')" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-cyan-500 text-gray-950 shadow">
+<i class="fa-solid fa-box-archive mr-1.5"></i> Owned Vault
+</button>
+<button id="tab-wishlist-btn" onclick="switchTab('wishlist')" class="flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 transition-all hover:text-white">
+<i class="fa-solid fa-heart mr-1.5"></i> Wishlist
+</button>
+</div>
+</div>
+<!-- CONTROLS: SEARCH & CATEGORY FILTER -->
+<div class="px-4 mb-4 space-y-2">
+<div class="relative">
+<i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-500 text-xs"></i>
+<input type="text" id="search-input" oninput="renderItems()" placeholder="Search gear, lenses, notes..." class="w-full bg-gray-900 border border-gray-800 text-sm text-gray-200 pl-9 pr-4 py-2 rounded-xl focus:outline-none focus:border-cyan-500 transition-colors" />
+</div>
+<div class="flex space-x-2 overflow-x-auto pb-1 text-xs custom-scrollbar">
+<button onclick="filterCategory('All')" class="cat-filter-btn active bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 px-3 py-1 rounded-full whitespace-nowrap font-medium">All Gear</button>
+<button onclick="filterCategory('Cameras')" class="cat-filter-btn text-gray-400 bg-gray-900 border border-gray-800 px-3 py-1 rounded-full whitespace-nowrap">Bodies</button>
+<button onclick="filterCategory('Lenses')" class="cat-filter-btn text-gray-400 bg-gray-900 border border-gray-800 px-3 py-1 rounded-full whitespace-nowrap">Lenses</button>
+<button onclick="filterCategory('Drone')" class="cat-filter-btn text-gray-400 bg-gray-900 border border-gray-800 px-3 py-1 rounded-full whitespace-nowrap">Drone</button>
+<button onclick="filterCategory('Accessories')" class="cat-filter-btn text-gray-400 bg-gray-900 border border-gray-800 px-3 py-1 rounded-full whitespace-nowrap">Accessories</button>
+<button onclick="filterCategory('Astro & Specialty')" class="cat-filter-btn text-gray-400 bg-gray-900 border border-gray-800 px-3 py-1 rounded-full whitespace-nowrap">Astro</button>
+</div>
+</div>
+<!-- MAIN ITEM LIST CONTAINER -->
+<main class="flex-1 px-4 space-y-3" id="items-container">
+<!-- Dynamic Items Rendered Here -->
+</main>
+<!-- FLOATING ACTION BUTTON (ADD GEAR) -->
+<button onclick="openAddModal()" class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-tr from-cyan-500 to-teal-400 text-gray-950 rounded-full flex items-center justify-center shadow-2xl shadow-cyan-500/50 hover:scale-105 active:scale-95 transition-transform z-20">
+<i class="fa-solid fa-plus text-xl font-bold"></i>
+</button>
+<!-- ADD / EDIT GEAR MODAL -->
+<div id="item-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+<div class="bg-gray-900 border border-gray-800 w-full max-w-lg rounded-t-2xl sm:rounded-2xl max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+<div class="px-5 py-4 border-b border-gray-800 flex justify-between items-center bg-gray-900">
+<h2 id="modal-title" class="text-base font-bold text-white">Add Photography Gear</h2>
+<button onclick="closeModal()" class="text-gray-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+</div>
+<form id="gear-form" onsubmit="handleFormSubmit(event)" class="p-5 overflow-y-auto space-y-4 text-sm text-gray-300 custom-scrollbar">
+<input type="hidden" id="form-id" />
+<div>
+<label class="block text-xs font-semibold text-gray-400 mb-1">Gear Title / Name *</label>
+<input type="text" id="form-name" required placeholder="e.g. Canon EOS R5 Mark II" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-xs font-semibold text-gray-400 mb-1">Category</label>
+<select id="form-category" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+<option value="Cameras">Camera Body</option>
+<option value="Lenses">Lens</option>
+<option value="Drone">Drone & Aerial</option>
+<option value="Accessories">Storage & Accessories</option>
+<option value="Astro & Specialty">Astro & Specialty</option>
+<option value="Lighting & Filters">Lighting & Filters</option>
+<option value="Field Support">Tripod & Support</option>
+</select>
+</div>
+<div>
+<label class="block text-xs font-semibold text-gray-400 mb-1">Status</label>
+<select id="form-status" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500">
+<option value="owned">Currently Owned</option>
+<option value="wishlist">Wishlist Target</option>
+</select>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div>
+<label class="block text-xs font-semibold text-gray-400 mb-1">Estimated Price (€)</label>
+<input type="number" step="0.01" id="form-price" placeholder="1200.00" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+</div>
+<div>
+<label class="block text-xs font-semibold text-gray-400 mb-1">Condition / Priority</label>
+<input type="text" id="form-condition" placeholder="Mint / High Priority" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+</div>
+</div>
+<div>
+<label class="block text-xs font-semibold text-gray-400 mb-1">Photo Image Web URL (Optional)</label>
+<input type="url" id="form-image" placeholder="https://images.unsplash.com/..." class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+</div>
+<div>
+<label class="block text-xs font-semibold text-gray-400 mb-1">Serial Number / Specs Note</label>
+<input type="text" id="form-serial" placeholder="S/N: 84920492 or f/2.8 IS USM" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500" />
+</div>
+<div>
+<label class="block text-xs font-semibold text-gray-400 mb-1">Notes / Trip Use Cases</label>
+<textarea id="form-notes" rows="2" placeholder="Best for twilight landscapes, northern lights, dynamic range..." class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2.5 text-white focus:outline-none focus:border-cyan-500"></textarea>
+</div>
+<div class="pt-2 flex justify-end space-x-3">
+<button type="button" onclick="closeModal()" class="px-4 py-2.5 rounded-xl text-gray-400 hover:bg-gray-800">Cancel</button>
+<button type="submit" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-teal-500 text-gray-950 font-bold shadow-md hover:opacity-90">Save Gear</button>
+</div>
+</form>
+</div>
+</div>
+<!-- GEMINI AI ASSISTANT MODAL -->
+<div id="gemini-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+<div class="bg-gray-900 border border-gray-800 w-full max-w-lg rounded-t-2xl sm:rounded-2xl h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+<div class="px-5 py-4 border-b border-gray-800 flex justify-between items-center bg-gray-900">
+<div class="flex items-center space-x-2">
+<i class="fa-solid fa-wand-magic-sparkles text-cyan-400 text-lg"></i>
+<h2 class="text-base font-bold text-white">Gemini Photography Pack Assistant</h2>
+</div>
+<button onclick="toggleGeminiModal()" class="text-gray-400 hover:text-white p-1"><i class="fa-solid fa-xmark text-lg"></i></button>
+</div>
+<!-- Quick Prompt Suggestions -->
+<div class="p-3 bg-gray-950 border-b border-gray-800 overflow-x-auto flex space-x-2 text-xs custom-scrollbar">
+<button onclick="applyPrompt('Assemble my gear for a travel-light India vacation. Which gear to take and which to leave?')" class="bg-gray-800 text-cyan-300 border border-gray-700 hover:border-cyan-500 px-3 py-1.5 rounded-full whitespace-nowrap">
+✈️ Pack Light for India
+</button>
+<button onclick="applyPrompt('Suggest my optimal setup for shooting Northern Lights / Aurora.')" class="bg-gray-800 text-cyan-300 border border-gray-700 hover:border-cyan-500 px-3 py-1.5 rounded-full whitespace-nowrap">
+🌌 Northern Lights / Aurora Setup
+</button>
+<button onclick="applyPrompt('What gear should I pack for deep sky astrophotography & long-exposure landscapes?')" class="bg-gray-800 text-cyan-300 border border-gray-700 hover:border-cyan-500 px-3 py-1.5 rounded-full whitespace-nowrap">
+✨ Astrophotography Trip
+</button>
+</div>
+<!-- Chat Log Container -->
+<div id="gemini-chat-log" class="flex-1 p-4 overflow-y-auto space-y-3 text-sm text-gray-200 custom-scrollbar">
+<div class="bg-gray-800/80 border border-gray-700/50 rounded-xl p-3.5 text-xs leading-relaxed text-gray-300">
+👋 Hi! I am your <strong>Gemini Photography Assistant</strong>. I have analyzed your complete gear vault. Ask me how to assemble your camera bag for upcoming trips, aurora sessions, or travel optimization!
+</div>
+</div>
+<!-- Input Box -->
+<div class="p-3 bg-gray-900 border-t border-gray-800 flex items-center space-x-2">
+<input type="text" id="gemini-input" placeholder="Ask Gemini about packing or gear choices..." onkeydown="if(event.key==='Enter') askGemini()" class="flex-1 bg-gray-800 border border-gray-700 rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500" />
+<button onclick="askGemini()" class="bg-cyan-500 hover:bg-cyan-400 text-gray-950 font-bold p-2.5 rounded-xl shadow-md">
+<i class="fa-solid fa-paper-plane text-sm"></i>
+</button>
+</div>
+</div>
+</div>
+<!-- APPLICATION LOGIC -->
+<script>
+const STORAGE_KEY = "aperture_vault_gear_data";
+const defaultGear = [
+{ id: "1", name: "Canon EOS R5 Mark II", category: "Cameras", status: "owned", price: 4200, condition: "Mint", serial: "Primary Body", notes: "Primary high-res mirrorless body.", image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&auto=format&fit=crop" },
+{ id: "2", name: "Canon EOS R6", category: "Cameras", status: "owned", price: 2100, condition: "Excellent", serial: "Secondary Body", notes: "Low-light & dual-body backup.", image: "https://images.unsplash.com/photo-1502920917128-1aa500764cbd?w=500&auto=format&fit=crop" },
+{ id: "3", name: "Canon RF 70-200mm f/2.8L IS USM", category: "Lenses", status: "owned", price: 2700, condition: "Mint", serial: "RF Telephoto", notes: "Professional telephoto zoom.", image: "https://images.unsplash.com/photo-1617005082133-548c4dd27f35?w=500&auto=format&fit=crop" },
+{ id: "4", name: "Canon RF 100-400mm IS USM", category: "Lenses", status: "owned", price: 650, condition: "Mint", serial: "RF Super-Tele", notes: "Lightweight wildlife & landscape reach.", image: "https://images.unsplash.com/photo-1512790182412-b19e6d61b39a?w=500&auto=format&fit=crop" },
+{ id: "5", name: "Canon RF 50mm f/1.8 STM", category: "Lenses", status: "owned", price: 200, condition: "Mint", serial: "Nifty Fifty", notes: "Compact everyday fast prime.", image: "https://images.unsplash.com/photo-1617005082133-548c4dd27f35?w=500&auto=format&fit=crop" },
+{ id: "6", name: "Canon RF 16mm f/2.8 STM", category: "Lenses", status: "owned", price: 300, condition: "Mint", serial: "Ultra-Wide", notes: "Compact wide-angle & astro.", image: "https://images.unsplash.com/photo-1512790182412-b19e6d61b39a?w=500&auto=format&fit=crop" },
+{ id: "7", name: "Canon RF 20mm f/1.4 L VCM", category: "Lenses", status: "owned", price: 1700, condition: "Mint", serial: "Fast Prime", notes: "Low-light astrophotography weapon.", image: "https://images.unsplash.com/photo-1617005082133-548c4dd27f35?w=500&auto=format&fit=crop" },
+{ id: "8", name: "AstroHori 85mm f/2.8 Macro Tilt", category: "Astro & Specialty", status: "owned", price: 350, condition: "Manual Focus", serial: "Macro Tilt", notes: "Precise manual focus plane & macro flora.", image: "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=500&auto=format&fit=crop" },
+{ id: "9", name: "DJI Mini 5 Pro (RC2 Controller)", category: "Drone", status: "owned", price: 1100, condition: "Mint", serial: "Drone Aerial", notes: "Aerial drone & landscape panoramas.", image: "https://images.unsplash.com/photo-1527977966376-1c8408f9f108?w=500&auto=format&fit=crop" },
+{ id: "10", name: "Insta360 Action Camera", category: "Accessories", status: "owned", price: 450, condition: "Mint", serial: "Action Cam", notes: "Behind-the-scenes travel video capture.", image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500&auto=format&fit=crop" },
+{ id: "11", name: "PGYTECH CreateMate Card Reader & Lexar Cards", category: "Accessories", status: "owned", price: 120, condition: "Essential", serial: "Data Storage", notes: "High-speed field card reader & storage.", image: "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=500&auto=format&fit=crop" },
+{ id: "12", name: "Scriveiner Classic Gold Archival Pen", category: "Accessories", status: "owned", price: 60, condition: "Mint", serial: "Field Pen", notes: "Document-proof archival field notes pen.", image: "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=500&auto=format&fit=crop" },
+{ id: "13", name: "Canon RF 15-35mm f/2.8L IS USM", category: "Lenses", status: "wishlist", price: 2399, condition: "High Priority", serial: "Target 2027", notes: "Ultimate wide landscape zoom.", image: "https://images.unsplash.com/photo-1617005082133-548c4dd27f35?w=500&auto=format&fit=crop" }
+];
+let items = JSON.parse(localStorage.getItem(STORAGE_KEY)) || defaultGear;
+let activeTab = "owned";
+let activeCategory = "All";
+function saveData() {
+localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+renderItems();
+updateStats();
+}
+function updateStats() {
+const owned = items.filter(i => i.status === "owned");
+const wishlist = items.filter(i => i.status === "wishlist");
+const totalVal = wishlist.reduce((acc, curr) => acc + (parseFloat(curr.price) || 0), 0);
+document.getElementById("stat-owned-count").innerText = owned.length;
+document.getElementById("stat-wishlist-count").innerText = wishlist.length;
+document.getElementById("stat-wishlist-val").innerText = "€" + Math.round(totalVal).toLocaleString();
+}
+function switchTab(tab) {
+activeTab = tab;
+const ownedBtn = document.getElementById("tab-owned-btn");
+const wishBtn = document.getElementById("tab-wishlist-btn");
+if(tab === "owned") {
+ownedBtn.className = "flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-cyan-500 text-gray-950 shadow";
+wishBtn.className = "flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 transition-all hover:text-white";
+} else {
+wishBtn.className = "flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-teal-400 text-gray-950 shadow";
+ownedBtn.className = "flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 transition-all hover:text-white";
+}
+renderItems();
+}
+function filterCategory(cat) {
+activeCategory = cat;
+document.querySelectorAll(".cat-filter-btn").forEach(btn => {
+if(btn.innerText.toLowerCase().includes(cat.toLowerCase()) || (cat === 'All' && btn.innerText === 'All Gear')) {
+btn.className = "cat-filter-btn active bg-cyan-500/20 text-cyan-400 border border-cyan-500/40 px-3 py-1 rounded-full whitespace-nowrap font-medium";
+} else {
+btn.className = "cat-filter-btn text-gray-400 bg-gray-900 border border-gray-800 px-3 py-1 rounded-full whitespace-nowrap";
+}
+});
+renderItems();
+}
+function renderItems() {
+const container = document.getElementById("items-container");
+const search = document.getElementById("search-input").value.toLowerCase();
+let filtered = items.filter(i => i.status === activeTab);
+if(activeCategory !== "All") {
+filtered = filtered.filter(i => i.category.toLowerCase().includes(activeCategory.toLowerCase()));
+}
+if(search) {
+filtered = filtered.filter(i => i.name.toLowerCase().includes(search) || (i.notes && i.notes.toLowerCase().includes(search)));
+}
+if(filtered.length === 0) {
+container.innerHTML = ⁠<div class="text-center py-12 text-gray-500"> <i class="fa-solid fa-camera-retro text-4xl mb-3 text-gray-700"></i> <p class="text-sm">No photography gear found in this view.</p> </div>⁠;
+return;
+}
+container.innerHTML = filtered.map(item => ⁠<div class="bg-gray-900 border border-gray-800/80 rounded-2xl p-3.5 flex items-center space-x-3 shadow-md hover:border-gray-700 transition-all"> <img src="${item.image || 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=300&auto=format&fit=crop'}" alt="${item.name}" class="w-16 h-16 rounded-xl object-cover border border-gray-800 flex-shrink-0" /> <div class="flex-1 min-w-0"> <div class="flex items-center space-x-2"> <span class="text-[10px] font-semibold tracking-wider uppercase px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">${item.category}</span> ${item.price ?⁠<span class="text-xs text-gray-400 font-medium">€{item.price}</span>` : ''}
+￼
+￼
+${item.notes ? `<p class="text-xs text-gray-400 truncate mt-0.5">{item.notes}</p>⁠: ''} ${item.serial ?⁠<p class="text-[11px] text-gray-500 font-mono mt-0.5">${item.serial}</p>⁠: ''} </div> <div class="flex flex-col space-y-1.5"> ${item.status === 'wishlist' ?⁠
+<button onclick="moveToOwned('${item.id}')" class="p-2 bg-teal-500/20 text-teal-400 rounded-lg hover:bg-teal-500/30 text-xs" title="Move to Owned">
+<i class="fa-solid fa-check"></i>
+</button>
+⁠: ''} <button onclick="editItem('${item.id}')" class="p-2 bg-gray-800 text-gray-300 rounded-lg hover:bg-gray-700 text-xs"> <i class="fa-solid fa-pen"></i> </button> <button onclick="deleteItem('${item.id}')" class="p-2 bg-red-500/10 text-red-400 rounded-lg hover:bg-red-500/20 text-xs"> <i class="fa-solid fa-trash"></i> </button> </div> </div>⁠).join("");
+}
+function openAddModal() {
+document.getElementById("form-id").value = "";
+document.getElementById("gear-form").reset();
+document.getElementById("modal-title").innerText = "Add Photography Gear";
+document.getElementById("item-modal").classList.remove("hidden");
+}
+function closeModal() {
+document.getElementById("item-modal").classList.add("hidden");
+}
+function handleFormSubmit(e) {
+e.preventDefault();
+const id = document.getElementById("form-id").value || Date.now().toString();
+const newItem = {
+id,
+name: document.getElementById("form-name").value,
+category: document.getElementById("form-category").value,
+status: document.getElementById("form-status").value,
+price: parseFloat(document.getElementById("form-price").value) || 0,
+condition: document.getElementById("form-condition").value,
+image: document.getElementById("form-image").value,
+serial: document.getElementById("form-serial").value,
+notes: document.getElementById("form-notes").value
+};
+const existingIdx = items.findIndex(i => i.id === id);
+if(existingIdx >= 0) {
+items[existingIdx] = newItem;
+} else {
+items.unshift(newItem);
+}
+saveData();
+closeModal();
+}
+function editItem(id) {
+const item = items.find(i => i.id === id);
+if(!item) return;
+document.getElementById("form-id").value = item.id;
+document.getElementById("form-name").value = item.name;
+document.getElementById("form-category").value = item.category;
+document.getElementById("form-status").value = item.status;
+document.getElementById("form-price").value = item.price || '';
+document.getElementById("form-condition").value = item.condition || '';
+document.getElementById("form-image").value = item.image || '';
+document.getElementById("form-serial").value = item.serial || '';
+document.getElementById("form-notes").value = item.notes || '';
+document.getElementById("modal-title").innerText = "Edit Gear Item";
+document.getElementById("item-modal").classList.remove("hidden");
+}
+function deleteItem(id) {
+if(confirm("Remove this gear from your vault?")) {
+items = items.filter(i => i.id !== id);
+saveData();
+}
+}
+function moveToOwned(id) {
+const item = items.find(i => i.id === id);
+if(item) {
+item.status = "owned";
+saveData();
+}
+}
+function exportData() {
+// Export current state embedded directly into new index.html code for GitHub replacement
+let currentHtml = document.documentElement.outerHTML;
+const updatedGearJson = JSON.stringify(items, null, 2);
+const regex = /const defaultGear = [[\s\S]*?];/;
+currentHtml = "<!DOCTYPE html>\n<html lang="en" class="dark">\n" +
+currentHtml.replace(regex, ⁠const defaultGear = ${updatedGearJson};⁠) +
+"\n</html>";
+const blob = new Blob([currentHtml], { type: "text/html" });
+const url = URL.createObjectURL(blob);
+const downloadAnchor = document.createElement('a');
+downloadAnchor.href = url;
+downloadAnchor.download = "index.html";
+document.body.appendChild(downloadAnchor);
+downloadAnchor.click();
+downloadAnchor.remove();
+URL.revokeObjectURL(url);
+}
+function toggleGeminiModal() {
+document.getElementById("gemini-modal").classList.toggle("hidden");
+}
+function applyPrompt(text) {
+document.getElementById("gemini-input").value = text;
+askGemini();
+}
+function askGemini() {
+const input = document.getElementById("gemini-input");
+const prompt = input.value.trim();
+if(!prompt) return;
+const chatLog = document.getElementById("gemini-chat-log");
+chatLog.innerHTML += ⁠<div class="flex justify-end"> <div class="bg-cyan-500 text-gray-950 font-medium rounded-xl px-3.5 py-2 max-w-[85%] text-xs shadow"> ${prompt} </div> </div>⁠;
+input.value = "";
+chatLog.scrollTop = chatLog.scrollHeight;
+setTimeout(() => {
+let reply = "";
+const lower = prompt.toLowerCase();
+if(lower.includes("india") || lower.includes("light")) {
+reply = ⁠<strong>Lightweight Travel Setup for India:</strong><br/>• <strong>Body:</strong> Canon EOS R6 (Lighter dual-body option)<br/>• <strong>Lenses:</strong> Canon RF 50mm f/1.8 STM & RF 16mm f/2.8 STM (Ultra-compact & light)<br/>• <strong>Aerial:</strong> DJI Mini 5 Pro<br/><br/><em>Leave at home:</em> Heavy telephotos (RF 70-200mm / 100-400mm) unless specifically planning wildlife safaris.⁠;
+} else if(lower.includes("aurora") || lower.includes("northern")) {
+reply = ⁠<strong>Northern Lights / Aurora Setup:</strong><br/>• <strong>Bodies:</strong> Canon EOS R5 Mark II (high-res) or R6<br/>• <strong>Lenses:</strong> Canon RF 20mm f/1.4 L VCM or RF 16mm f/2.8 STM (fast wide apertures for dark skies)<br/>• <strong>Support:</strong> Sturdy tripod & extra batteries!⁠;
+} else if(lower.includes("astro")) {
+reply = ⁠<strong>Astrophotography Setup:</strong><br/>• <strong>Primary Body:</strong> Canon EOS R5 Mark II<br/>• <strong>Optics:</strong> Canon RF 20mm f/1.4 L VCM (prime low-light weapon) + AstroHori 85mm macro for specialty close-ups.<br/>• <strong>Storage:</strong> PGYTECH reader & Lexar cards.⁠;
+} else {
+reply = ⁠Based on your complete inventory (EOS R5 II, R6, multiple RF primes/zooms, drone, and astro gear), you are fully equipped for both professional travel documentation and low-light astrophotography! Let me know if you want to optimize a specific packing list.⁠;
+}
+chatLog.innerHTML += ⁠<div class="flex justify-start"> <div class="bg-gray-800 border border-gray-700/70 text-gray-200 rounded-xl p-3 max-w-[88%] text-xs leading-relaxed shadow"> <p class="text-cyan-400 font-bold mb-1"><i class="fa-solid fa-sparkles mr-1"></i> Gemini Advice:</p> ${reply} </div> </div>⁠;
+chatLog.scrollTop = chatLog.scrollHeight;
+}, 600);
+}
+// Initial load
+renderItems();
+updateStats();
+</script>
 </body>
 </html>
